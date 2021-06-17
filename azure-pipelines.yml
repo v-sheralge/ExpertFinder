@@ -1,0 +1,40 @@
+# ASP.NET Core
+
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- master
+
+steps:
+- checkout: self
+  persistCredentials: true
+
+- task: TouchdownBuildTask@1
+  inputs:
+    environment: 'PRODEXT'
+    teamId: '25162'
+    authType: 'OAuth'
+    authId: '9b38f243-9cd5-4a0f-8ff4-00acfbf331ac'
+    authKey: 'rhr65R8iNf~oh_0Q5-xk_3iva6_.l~I51B'
+    resourceFilePath: '**/Strings.resx'
+    appendRelativeDir: true
+    cultureMappingType: 'None'
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Show Touchdown output
+      git status
+      
+      # Show post-processed output
+      git status
+      
+      # Check in localized files to temp branch
+      git checkout -b localization/build-$env:BUILD_BUILDID
+      git add --all
+      git config --global user.name "Build Pipeline"
+      git commit -am "Localized resource files"
+      git push --set-upstream origin localization/build-$env:BUILD_BUILDID
